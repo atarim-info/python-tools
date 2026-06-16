@@ -22,6 +22,23 @@ import argparse
 from tqdm import tqdm
 
 
+def safe_print_path(label, path):
+    """
+    Safely print a path with Unicode characters.
+    Handles encoding errors gracefully for Python 2/3 compatibility.
+    With UTF-8 stdout wrapper, print unicode directly.
+    """
+    try:
+        # With codecs UTF-8 wrapper or Python 3, print unicode directly
+        print('{0}{1}'.format(label, path))
+    except (UnicodeDecodeError, UnicodeEncodeError, AttributeError, TypeError):
+        # Fallback to repr() if encoding fails
+        try:
+            print('{0}{1}'.format(label, repr(path)))
+        except Exception:
+            print('{0}[Unable to display path]'.format(label))
+
+
 def parse_csv_report(csv_path):
     """Parse the duplicate report CSV and return duplicate file paths."""
     duplicates = []
@@ -90,8 +107,8 @@ def print_candidates(duplicates):
     print('')
 
     for original_path, duplicate_path in duplicates:
-        print('Original:  {0}'.format(original_path))
-        print('Duplicate: {0}'.format(duplicate_path))
+        safe_print_path('Original:  ', original_path)
+        safe_print_path('Duplicate: ', duplicate_path)
         print('')
 
 
@@ -113,11 +130,7 @@ def delete_duplicates(duplicates):
             try:
                 os.remove(duplicate_path)
                 deleted.append(duplicate_path)
-                try:
-                    display_path = duplicate_path.encode('utf-8') if isinstance(duplicate_path, type(u'')) else duplicate_path
-                except Exception:
-                    display_path = repr(duplicate_path)
-                print('Deleted: {0}'.format(display_path))
+                safe_print_path('Deleted: ', duplicate_path)
             except (OSError, IOError, UnicodeError) as e:
                 skipped.append((duplicate_path, 'error', str(e)))
                 try:
@@ -127,11 +140,7 @@ def delete_duplicates(duplicates):
                 print('Error deleting {0}: {1}'.format(display_path, e))
         else:
             skipped.append((duplicate_path, 'missing', 'File does not exist'))
-            try:
-                display_path = duplicate_path.encode('utf-8') if isinstance(duplicate_path, type(u'')) else duplicate_path
-            except Exception:
-                display_path = repr(duplicate_path)
-            print('Skipped missing file: {0}'.format(display_path))
+            safe_print_path('Skipped missing file: ', duplicate_path)
 
     print('')
     print('Deletion summary:')
@@ -151,6 +160,14 @@ def confirm(prompt):
 
 
 def main():
+    # Set UTF-8 output encoding if possible (Python 2)
+    if sys.version_info[0] < 3:
+        try:
+            import codecs
+            sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+        except Exception:
+            pass
+    
     parser = argparse.ArgumentParser(description='Remove duplicate files listed in a CSV report.')
     parser.add_argument('csv_report', help='Path to the duplicate CSV report')
     parser.add_argument('--delete', action='store_true', help='Delete duplicate files listed in the report')
