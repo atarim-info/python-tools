@@ -26,17 +26,21 @@ def safe_print_path(label, path):
     """
     Safely print a path with Unicode characters.
     Handles encoding errors gracefully for Python 2/3 compatibility.
-    With UTF-8 stdout wrapper, print unicode directly.
     """
     try:
-        # With codecs UTF-8 wrapper or Python 3, print unicode directly
-        print('{0}{1}'.format(label, path))
-    except (UnicodeDecodeError, UnicodeEncodeError, AttributeError, TypeError):
-        # Fallback to repr() if encoding fails
+        # In Python 2, encode unicode to UTF-8 bytes for printing
+        if sys.version_info[0] < 3 and isinstance(path, type(u'')):
+            display = label + path.encode('utf-8')
+        else:
+            # Python 3 or byte strings
+            display = label + path
+        print(display)
+    except (UnicodeDecodeError, UnicodeEncodeError, AttributeError, TypeError) as e:
+        # Last resort fallback
         try:
-            print('{0}{1}'.format(label, repr(path)))
+            print(label + str(path))
         except Exception:
-            print('{0}[Unable to display path]'.format(label))
+            print(label + '[Unable to display path]')
 
 
 def parse_csv_report(csv_path):
