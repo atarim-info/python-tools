@@ -1,0 +1,2 @@
+# Requirements for Python 2.7.18 project
+# Add your dependencies here
