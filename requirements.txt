@@ -1,2 +1,4 @@
-# Requirements for Python 2.7.18 project
+# Requirements (Python 3.12+)
 # Add your dependencies here
+
+python-bidi>=0.4.2
