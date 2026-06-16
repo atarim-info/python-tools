@@ -35,14 +35,25 @@ def calculate_file_hash(filepath, blocksize=65536):
     """
     try:
         sha256 = hashlib.sha256()
+        # Ensure filepath is unicode on Python 2, str on Python 3
+        if sys.version_info[0] < 3:
+            if isinstance(filepath, str):
+                try:
+                    filepath = filepath.decode('utf-8')
+                except (UnicodeDecodeError, AttributeError):
+                    pass
         with open(filepath, 'rb') as f:
             buf = f.read(blocksize)
             while len(buf) > 0:
                 sha256.update(buf)
                 buf = f.read(blocksize)
         return sha256.hexdigest()
-    except (IOError, OSError) as e:
-        print("  Warning: Could not hash {0}: {1}".format(filepath, e))
+    except (IOError, OSError, UnicodeError) as e:
+        try:
+            filepath_display = filepath.encode('utf-8') if isinstance(filepath, type(u'')) else filepath
+        except Exception:
+            filepath_display = repr(filepath)
+        print("  Warning: Could not hash {0}: {1}".format(filepath_display, e))
         return None
 
 
@@ -57,6 +68,14 @@ def build_file_index(directory):
         tuple: (index, stats) where stats contains file and directory counts and duration
     """
     start_time = time.time()
+
+    # Ensure directory path is unicode on Python 2
+    if sys.version_info[0] < 3:
+        if isinstance(directory, str):
+            try:
+                directory = directory.decode('utf-8')
+            except (UnicodeDecodeError, AttributeError):
+                pass
 
     if not os.path.isdir(directory):
         print("Error: Directory does not exist: {0}".format(directory))
@@ -93,8 +112,12 @@ def build_file_index(directory):
                 index[filesize][filehash].append(filepath)
                 file_count += 1
                 
-            except (IOError, OSError) as e:
-                print("  Error processing {0}: {1}".format(filepath, e))
+            except (IOError, OSError, UnicodeError) as e:
+                try:
+                    filepath_display = filepath.encode('utf-8') if isinstance(filepath, type(u'')) else filepath
+                except Exception:
+                    filepath_display = repr(filepath)
+                print("  Error processing {0}: {1}".format(filepath_display, e))
                 error_count += 1
     
     duration = time.time() - start_time
@@ -188,16 +211,32 @@ def generate_report(dir1, dir2, duplicates, index1, index2, stats1, stats2, comp
 
 def write_csv_report(report_rows, filename="duplicate_report.csv"):
     """Write CSV rows to a file."""
-    mode = 'wb' if sys.version_info[0] < 3 else 'w'
-    kwargs = {}
-    if sys.version_info[0] >= 3:
-        kwargs['newline'] = ''
+    # Ensure UTF-8 output across Python2 and Python3
+    try:
+        unicode_type = unicode  # noqa: F821 (Python2)
+    except NameError:
+        unicode_type = str
+
+    def _encode_cell(cell):
+        if isinstance(cell, unicode_type):
+            if unicode_type is str:
+                return cell
+            return cell.encode('utf-8')
+        return cell
 
     try:
-        with open(filename, mode, **kwargs) as csvfile:
-            writer = csv.writer(csvfile)
-            for row in report_rows:
-                writer.writerow(row)
+        if sys.version_info[0] < 3:
+            # Python 2: write bytes
+            with open(filename, 'wb') as csvfile:
+                writer = csv.writer(csvfile)
+                for row in report_rows:
+                    writer.writerow([_encode_cell(c) for c in row])
+        else:
+            # Python 3: write text with UTF-8 encoding
+            with open(filename, 'w', encoding='utf-8', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                for row in report_rows:
+                    writer.writerow([_encode_cell(c) for c in row])
         return True
     except IOError as e:
         print("Warning: Could not save CSV report: {0}".format(e))
@@ -214,6 +253,14 @@ def main():
     
     dir1 = sys.argv[1]
     dir2 = sys.argv[2]
+    
+    # Decode Unicode arguments on Python 2
+    if sys.version_info[0] < 3:
+        try:
+            dir1 = dir1.decode('utf-8')
+            dir2 = dir2.decode('utf-8')
+        except (UnicodeDecodeError, AttributeError):
+            pass
     
     print("Duplicate File Finder")
     print("=" * 70)

@@ -27,16 +27,36 @@ def parse_csv_report(csv_path):
     duplicates = []
 
     try:
-        with open(csv_path, 'r') as csvfile:
+        # Open with UTF-8 where possible; on Python2 read bytes and decode
+        if sys.version_info[0] < 3:
+            csvfile = open(csv_path, 'rb')
             reader = csv.reader(csvfile)
-            header_found = False
+        else:
+            csvfile = open(csv_path, 'r', encoding='utf-8', newline='')
+            reader = csv.reader(csvfile)
+
+        header_found = False
+
+        try:
+            try:
+                unicode_type = unicode
+            except NameError:
+                unicode_type = str
+
+            def to_text(cell):
+                if isinstance(cell, unicode_type):
+                    return cell
+                try:
+                    return cell.decode('utf-8')
+                except Exception:
+                    return str(cell)
 
             for row in reader:
                 if not row:
                     continue
 
                 if not header_found:
-                    normalized = [cell.strip().lower() for cell in row]
+                    normalized = [to_text(cell).strip().lower() for cell in row]
                     if normalized[:2] == ['original_path', 'duplicate_path']:
                         header_found = True
                     continue
@@ -44,11 +64,14 @@ def parse_csv_report(csv_path):
                 if len(row) < 2:
                     continue
 
-                original_path = row[0].strip()
-                duplicate_path = row[1].strip()
+                original_path = to_text(row[0]).strip()
+                duplicate_path = to_text(row[1]).strip()
 
                 if duplicate_path:
                     duplicates.append((original_path, duplicate_path))
+        finally:
+            csvfile.close()
+
     except IOError as e:
         print('Error: Could not read CSV file {0}: {1}'.format(csv_path, e))
         sys.exit(1)
@@ -78,17 +101,37 @@ def delete_duplicates(duplicates):
     skipped = []
 
     for original_path, duplicate_path in tqdm(duplicates, desc="Deleting duplicates"):
+        # Ensure paths are unicode on Python 2
+        if sys.version_info[0] < 3:
+            if isinstance(duplicate_path, str):
+                try:
+                    duplicate_path = duplicate_path.decode('utf-8')
+                except (UnicodeDecodeError, AttributeError):
+                    pass
+        
         if os.path.exists(duplicate_path):
             try:
                 os.remove(duplicate_path)
                 deleted.append(duplicate_path)
-                print('Deleted: {0}'.format(duplicate_path))
-            except (OSError, IOError) as e:
+                try:
+                    display_path = duplicate_path.encode('utf-8') if isinstance(duplicate_path, type(u'')) else duplicate_path
+                except Exception:
+                    display_path = repr(duplicate_path)
+                print('Deleted: {0}'.format(display_path))
+            except (OSError, IOError, UnicodeError) as e:
                 skipped.append((duplicate_path, 'error', str(e)))
-                print('Error deleting {0}: {1}'.format(duplicate_path, e))
+                try:
+                    display_path = duplicate_path.encode('utf-8') if isinstance(duplicate_path, type(u'')) else duplicate_path
+                except Exception:
+                    display_path = repr(duplicate_path)
+                print('Error deleting {0}: {1}'.format(display_path, e))
         else:
             skipped.append((duplicate_path, 'missing', 'File does not exist'))
-            print('Skipped missing file: {0}'.format(duplicate_path))
+            try:
+                display_path = duplicate_path.encode('utf-8') if isinstance(duplicate_path, type(u'')) else duplicate_path
+            except Exception:
+                display_path = repr(duplicate_path)
+            print('Skipped missing file: {0}'.format(display_path))
 
     print('')
     print('Deletion summary:')
