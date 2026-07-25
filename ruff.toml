@@ -1,0 +1,28 @@
+# Shared Ruff config for the whole python-tools workspace.
+target-version = "py312"
+line-length = 100
+src = ["packages"]
+
+extend-exclude = ["utils", ".venv"]
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "RUF", # ruff-specific
+]
+ignore = [
+    "E501", # line length handled by the formatter
+]
+
+[lint.per-file-ignores]
+"**/tests/**" = ["B", "SIM"]
+"tests/**" = ["B", "SIM"]
+
+[format]
+docstring-code-format = true

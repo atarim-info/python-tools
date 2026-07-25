@@ -1,0 +1,18 @@
+[project]
+name = "python-tools-events"
+version = "0.0.0"
+description = "STUB (later phase): CloudEvents v1.0 envelopes and Kafka producer/consumer wrappers."
+requires-python = ">=3.12"
+readme = "README.md"
+authors = [{ name = "Platform Engineering" }]
+dependencies = [
+    "python-tools-config",
+    "python-tools-logging",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/python_tools"]

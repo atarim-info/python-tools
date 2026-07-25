@@ -1,0 +1,14 @@
+# python-tools code ownership.
+# Each package has a named maintainer (PRD §7). Fill in real handles before P2.
+
+# Default owner for the whole repo.
+*                                   @platform-engineering
+
+# Per-package maintainers (P1 implemented).
+/packages/python-tools-config/          @platform-engineering
+/packages/python-tools-logging/         @platform-engineering
+/packages/python-tools-observability/   @platform-engineering
+
+# Security-sensitive packages require a second + security reviewer (PRD §7).
+/packages/python-tools-auth/            @platform-engineering @security
+/packages/python-tools-events/          @platform-engineering
