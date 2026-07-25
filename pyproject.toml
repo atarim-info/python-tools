@@ -1,0 +1,49 @@
+[project]
+name = "python-tools-workspace"
+version = "0.0.0"
+description = "Workspace root for the python-tools shared libraries (not published)."
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[tool.uv.sources]
+python-tools-config = { workspace = true }
+python-tools-logging = { workspace = true }
+python-tools-observability = { workspace = true }
+python-tools-auth = { workspace = true }
+python-tools-fastapi = { workspace = true }
+python-tools-events = { workspace = true }
+python-tools-jobs = { workspace = true }
+python-tools-storage = { workspace = true }
+python-tools-llm = { workspace = true }
+python-tools-testing = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "python-tools-config",
+    "python-tools-logging",
+    "python-tools-observability",
+    "python-tools-auth",
+    "python-tools-fastapi",
+    "python-tools-events",
+    "python-tools-jobs",
+    "python-tools-storage",
+    "python-tools-llm",
+    "python-tools-testing",
+    "mypy>=1.11",
+    "ruff>=0.6",
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["packages", "tests"]
+addopts = "-ra"
+markers = [
+    "integration: cross-package integration tests (may be slower).",
+]
