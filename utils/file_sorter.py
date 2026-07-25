@@ -19,22 +19,45 @@ import shutil
 import re
 import time
 
+# Optional dependency: tqdm (progress bar). Fallback to no-progress iteration.
+try:
+    from tqdm import tqdm  # type: ignore
+except Exception:
+    # If tqdm is not installed (or any other import issue), keep the script working.
+    def tqdm(iterable, **kwargs):
+        return iterable
+
 
 def extract_year(filename):
     """
     Extract year from filename.
-    Assumes filename starts with YYYY-MM-DD format.
-    
+
+    Supports these common patterns:
+      1) Starts with YYYY... (existing behavior), e.g. "2023-05-08 09.12.08.jpg"
+      2) IMG_YYYYMMDD_..., e.g. "IMG_20160326_171252.jpg"
+      3) C360_YYYY-MM-DD-..., e.g. "C360_2015-12-26-17-29-01-627.jpg"
+
     Args:
         filename (str): Filename to parse
-        
+
     Returns:
         str: Year (e.g., '2023') or None if not found
     """
-    # Match YYYY pattern at the start of filename
+    # 1) Match YYYY at the start of filename (existing behavior)
     match = re.match(r'^(\d{4})', filename)
     if match:
         return match.group(1)
+
+    # 2) IMG_YYYYMMDD_... or PANO_YYYYMMDD_...
+    match = re.search(r'(^|_)(?:IMG|PANO)_(\d{4})(\d{2})(\d{2})_', filename)
+    if match:
+        return match.group(2)
+
+    # 3) C360_YYYY-MM-DD-...
+    match = re.search(r'(^|_)C360_(\d{4})-(\d{2})-(\d{2})-', filename)
+    if match:
+        return match.group(2)
+
     return None
 
 

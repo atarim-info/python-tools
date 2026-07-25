@@ -1,0 +1,9 @@
+- [ ] Update `.python-version` from `2.7.18` to `3.12`
+- [ ] Update `requirements.txt` to reflect Python 3 (remove Python 2.7 comment; keep dependencies)
+- [ ] Port `remove_duplicates.py` to Python 3 only:
+  - [ ] Remove Py2-only code paths (`__future__`, `unicode` handling, `codecs.getwriter`, sys.version checks)
+  - [ ] Make CSV decoding + Unicode printing consistent on Python 3
+  - [ ] Keep `--delete` and `--repair-mojibake` flags working
+- [ ] Run quick validation:
+  - [ ] `python remove_duplicates.py duplicate_report.csv` (no crash)
+  - [ ] `python remove_duplicates.py duplicate_report.csv --repair-mojibake` (no crash)
