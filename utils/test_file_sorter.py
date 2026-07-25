@@ -15,12 +15,17 @@ from file_sorter import sort_files_by_year, print_summary
 def create_test_files(test_dir):
     """Create sample test files with various date formats."""
     test_files = [
+        # Already supported: filenames starting with YYYY...
         '2023-05-08 09.12.08.jpg',
         '2023-12-25 14.30.45.png',
         '2022-01-15 10.00.00.jpg',
         '2022-06-30 16.45.22.jpg',
         '2021-03-20 12.15.30.jpg',
         '2024-11-10 08.20.10.mp4',
+        # New support:
+        'IMG_20160326_171252.jpg',
+        'C360_2015-12-26-17-29-01-627.jpg',
+        'PANO_20151116_163437.jpg',
         'no_date_file.jpg',  # This should be skipped
     ]
     

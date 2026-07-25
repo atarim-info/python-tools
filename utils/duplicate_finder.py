@@ -19,7 +19,42 @@ import os
 import sys
 import time
 import hashlib
+import locale
 from tqdm import tqdm
+
+
+def format_seconds_to_hms(seconds):
+    """
+    Format seconds to H:m:s format.
+    
+    Args:
+        seconds (float): Time in seconds
+        
+    Returns:
+        str: Formatted time as H:m:s
+    """
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = seconds % 60
+    return "{0}:{1:02d}:{2:04.1f}".format(hours, minutes, secs)
+
+
+def format_number_with_separator(number):
+    """
+    Format number with thousand separators according to locale.
+    
+    Args:
+        number (int): Number to format
+        
+    Returns:
+        str: Formatted number with commas
+    """
+    try:
+        locale.setlocale(locale.LC_ALL, '')
+        return locale.format_string("%d", number, grouping=True)
+    except Exception:
+        # Fallback to basic comma formatting
+        return "{:,}".format(number)
 
 
 def calculate_file_hash(filepath, blocksize=65536):
@@ -182,18 +217,18 @@ def generate_report(dir1, dir2, duplicates, index1, index2, stats1, stats2, comp
     rows.append(["files_indexed_dir1", stats1['file_count']])
     rows.append(["dirs_indexed_dir1", stats1['dir_count']])
     rows.append(["index_errors_dir1", stats1['error_count']])
-    rows.append(["index_duration_dir1", "{0:.2f}".format(stats1['duration'])])
+    rows.append(["index_duration_dir1", format_seconds_to_hms(stats1['duration'])])
     rows.append([])
     rows.append(["files_indexed_dir2", stats2['file_count']])
     rows.append(["dirs_indexed_dir2", stats2['dir_count']])
     rows.append(["index_errors_dir2", stats2['error_count']])
-    rows.append(["index_duration_dir2", "{0:.2f}".format(stats2['duration'])])
+    rows.append(["index_duration_dir2", format_seconds_to_hms(stats2['duration'])])
     rows.append([])
-    rows.append(["compare_duration", "{0:.2f}".format(compare_duration)])
-    rows.append(["total_duration", "{0:.2f}".format(total_duration)])
+    rows.append(["compare_duration", format_seconds_to_hms(compare_duration)])
+    rows.append(["total_duration", format_seconds_to_hms(total_duration)])
     rows.append([])
     rows.append(["duplicate_files_found", sum(len(hashes) for size in duplicates for hashes in duplicates[size].values())])
-    rows.append(["duplicate_size_bytes", sum(size * len(hashes) for size in duplicates for hashes in duplicates[size].values())])
+    rows.append(["duplicate_size_bytes", format_number_with_separator(sum(size * len(hashes) for size in duplicates for hashes in duplicates[size].values()))])
     rows.append([])
     rows.append(["original_path", "duplicate_path", "size_bytes", "hash"])
 
@@ -204,7 +239,7 @@ def generate_report(dir1, dir2, duplicates, index1, index2, stats1, stats2, comp
         for filehash in sorted(duplicates[size].keys()):
             orig_file = index1[size][filehash][0]
             for dup_file in sorted(duplicates[size][filehash]):
-                rows.append([orig_file, dup_file, size, filehash])
+                rows.append([orig_file, dup_file, format_number_with_separator(size), filehash])
     
     return rows
 

@@ -1,0 +1,4 @@
+# Requirements (Python 3.12+)
+# Add your dependencies here
+
+python-bidi>=0.4.2
