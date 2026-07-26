@@ -1,13 +1,18 @@
 [project]
 name = "python-tools-storage"
-version = "0.0.0"
-description = "STUB (later phase): S3/MinIO, Mongo index, and Postgres engine helpers."
+version = "0.1.0"
+description = "S3/MinIO client helpers and Mongo declarative index helpers."
 requires-python = ">=3.12"
 readme = "README.md"
 authors = [{ name = "Platform Engineering" }]
 dependencies = [
     "python-tools-config",
 ]
+
+[project.optional-dependencies]
+mongo = ["motor>=3.5", "pymongo>=4.8"]
+s3 = ["boto3>=1.34"]
+all = ["motor>=3.5", "pymongo>=4.8", "boto3>=1.34"]
 
 [build-system]
 requires = ["hatchling"]

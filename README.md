@@ -22,11 +22,35 @@ Implemented:
 | `python-tools-config` | `python_tools.config` | `BaseServiceSettings`, env conventions, file-secret loading, redacted dumps |
 | `python-tools-logging` | `python_tools.logging` | structlog JSON logging, PII masking, correlation + trace IDs |
 | `python-tools-observability` | `python_tools.obs` | OTel bootstrap (no-op by default), health check registry |
+| `python-tools-auth` | `python_tools.auth` | Standalone API-key principals (JWT/JWKS deferred) |
+| `python-tools-fastapi` | `python_tools.web` | App factory, error envelope, middleware, ETag/health routes |
+| `python-tools-jobs` | `python_tools.jobs` | Async job model, Mongo/memory stores, worker claim loop |
+| `python-tools-storage` | `python_tools.storage` | S3/MinIO helpers, Mongo indexes, in-memory DB |
 
-Reserved as stubs (later phases): `auth`, `fastapi`, `events`, `jobs`, `storage`,
-`llm`, `testing`.
+Still stubs (later waves): `events`, `llm`, `testing`.
 
 The legacy `utils/` scripts are unrelated and kept untouched for now.
+
+## Consuming from another repo (until CodeArtifact)
+
+Path dependency (local monorepo / sibling checkout):
+
+```toml
+[tool.uv.sources]
+python-tools-config = { path = "../python-tools/packages/python-tools-config", editable = true }
+python-tools-logging = { path = "../python-tools/packages/python-tools-logging", editable = true }
+python-tools-observability = { path = "../python-tools/packages/python-tools-observability", editable = true }
+python-tools-auth = { path = "../python-tools/packages/python-tools-auth", editable = true }
+python-tools-fastapi = { path = "../python-tools/packages/python-tools-fastapi", editable = true }
+python-tools-jobs = { path = "../python-tools/packages/python-tools-jobs", editable = true }
+python-tools-storage = { path = "../python-tools/packages/python-tools-storage", editable = true }
+```
+
+Or pin a git tag / commit once Wave 1 is tagged:
+
+```toml
+python-tools-auth = { git = "https://github.com/atarim-info/python-tools.git", subdirectory = "packages/python-tools-auth", rev = "<tag-or-sha>" }
+```
 
 ## Layout
 

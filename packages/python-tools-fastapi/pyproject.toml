@@ -1,14 +1,18 @@
 [project]
 name = "python-tools-fastapi"
-version = "0.0.0"
-description = "STUB (later phase): app factory, error envelope, middleware, pagination/ETag helpers."
+version = "0.1.0"
+description = "FastAPI app factory, error envelope, middleware, and HTTP helpers."
 requires-python = ">=3.12"
 readme = "README.md"
 authors = [{ name = "Platform Engineering" }]
 dependencies = [
+    "fastapi>=0.111",
     "python-tools-observability",
-    "python-tools-auth",
+    "python-tools-logging",
 ]
+
+[project.optional-dependencies]
+auth = ["python-tools-auth"]
 
 [build-system]
 requires = ["hatchling"]
