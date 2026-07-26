@@ -1,13 +1,17 @@
 [project]
 name = "python-tools-jobs"
-version = "0.0.0"
-description = "STUB (later phase): async-job contract (202 + GET /jobs/{id}) and worker loop."
+version = "0.1.0"
+description = "Async job contract, Mongo store, and worker claim loop."
 requires-python = ">=3.12"
 readme = "README.md"
 authors = [{ name = "Platform Engineering" }]
 dependencies = [
+    "python-tools-config",
     "python-tools-logging",
 ]
+
+[project.optional-dependencies]
+mongo = ["motor>=3.5", "pymongo>=4.8"]
 
 [build-system]
 requires = ["hatchling"]

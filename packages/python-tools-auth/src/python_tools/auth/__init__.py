@@ -1,14 +1,21 @@
-"""python-tools-auth — RESERVED STUB (implemented in Phase P2).
+"""Authentication principals and standalone API-key auth (PT-06 Wave 1).
 
-Planned (PT-06): UTMS RS256 JWT verification with JWKS caching + rotation, ``app_scope``
-enforcement, a permission-check client with a short-TTL Redis cache and fail-closed
-behaviour, API-key principals for standalone mode, and FastAPI dependencies.
-
-Importing this package is safe; it exposes no functionality yet.
+JWT / JWKS verification (T6.1-T6.3) lands when a consumer pulls Wave 3.
 """
 
 from __future__ import annotations
 
-__all__: list[str] = []
-__version__ = "0.0.0"
-__status__ = "stub"
+from python_tools.auth.api_key import ApiKeyAuth, StandaloneAuth, parse_api_key_map
+from python_tools.auth.errors import AuthError, ForbiddenError
+from python_tools.auth.principal import Principal
+
+__all__ = [
+    "ApiKeyAuth",
+    "AuthError",
+    "ForbiddenError",
+    "Principal",
+    "StandaloneAuth",
+    "parse_api_key_map",
+]
+
+__version__ = "0.1.0"

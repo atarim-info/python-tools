@@ -1,7 +1,7 @@
 [project]
 name = "python-tools-auth"
-version = "0.0.0"
-description = "STUB (later phase): UTMS JWT verification, app_scope enforcement, permission checks."
+version = "0.1.0"
+description = "Auth principals and standalone API-key authentication (JWT/JWKS in a later wave)."
 requires-python = ">=3.12"
 readme = "README.md"
 authors = [{ name = "Platform Engineering" }]

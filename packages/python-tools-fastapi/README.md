@@ -1,10 +1,26 @@
-# python-tools-fastapi (stub)
+# python-tools-fastapi
 
-Reserved distribution — implemented in **Phase P2**. Import root `python_tools.web`
-(the distribution is named `python-tools-fastapi`).
+Import root: `python_tools.web` (distribution name `python-tools-fastapi`).
 
-Planned responsibility (PT-07): app factory (wires logging + observability), standard
-error envelope + shared error-code enum, request-ID / access-log / exception-mapping
-middleware, and helpers for cursor pagination, ETag/`If-Match`, and `Idempotency-Key`.
+## Wave 1
 
-Depends on: `python-tools-observability`, `python-tools-auth`.
+App factory, standard error envelope, request-ID middleware, ETag /
+Idempotency-Key helpers, and `/healthz` `/readyz` `/metrics` (closes PT-08 T8.2).
+
+```python
+from python_tools.config import BaseServiceSettings
+from python_tools.web import create_app, api_error, NOT_FOUND
+
+settings = BaseServiceSettings(service_name="demo")
+app = create_app(title="demo", settings=settings)
+
+@app.get("/items/{item_id}")
+async def get_item(item_id: str):
+    raise api_error(404, NOT_FOUND, "missing", item_id=item_id)
+```
+
+Auth FastAPI dependencies are optional (`python-tools-fastapi[auth]`); JWT waits
+for Wave 3. Soft dependency — this package does not require `python-tools-auth`
+at runtime for the Wave 1 factory.
+
+Depends on: `fastapi`, `python-tools-observability`, `python-tools-logging`.
