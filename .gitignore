@@ -22,8 +22,9 @@ venv/
 coverage.xml
 htmlcov/
 
-# Editors / OS
+# Editors / OS / Agents
 .idea/
+.agents/
 *.swp
 .DS_Store
 
